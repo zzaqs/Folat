@@ -65,31 +65,31 @@ Hello World!
 # Examples
 ## Printing a byte
 ```
-set 000 A--   MEM = A
-out 000       STDOUT = MEM[0] (A)
+; line comment
+set 000 A-- inline comment
+out 000    ;
 ```
 
 ## "Hello World!"
 ```folat
-set 000 Hel   MEM = Hel
-set 003 lo    MEM = Hello 
-set 006 Wor   MEM = Hello Wor
-set 009 ld!   MEM = Hello World!
-set 012 \--   MEM = Hello World!\n
-ext 001       STDOUT = MEM (Hello World!)
+set 000 Hel  MEM[0], MEM[1], MEM[2] = 'H', 'e', 'l'
+set 003 lo ;
+set 006 Wor
+set 009 ld!
+set 012 \--  'set' replace '\' to '\n', and remove '-'
+ext 001    ;
 ```
 
 ## Simulating condition
 ```
-set 000 0tf   MEM = 0tf
----           PNR = 2
-;          ;   First pass    ; Second pass ; Third pass
-cmp 000 050    FLG = false   ; FLG = false ; FLG = true
-add 000 001    MEM[0] = 1    ; MEM[0] = 2  ; MEM[0] = 3 (no effect)
-out 002        STDOUT = f    ; STDOUT = ff ; STDOUT = fff
-gpf            PC = 2        ; PC = 2      ; PC = PC (no effect)
-out 001        STDOUT = ffft ;
-ext 000        exit(0)
+set 000 0tf
+---        ; PNR = 2
+cmp 000 050  FLG = (MEM[0] == 50)
+add 000 001  MEM[0] += 1
+out 002    ; print(MEM[2])
+gpf        ;
+out 001    ; print(MEM[1])
+ext 000    ; return 0
 ```
 # External Resources
 - [Folat esolang page](https://esolangs.org/wiki/Folat)
