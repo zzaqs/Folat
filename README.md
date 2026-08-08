@@ -46,7 +46,7 @@ In Folat, points are lines that begin with "---". When the interpreter processes
 # How to use
 First, clone the repository and use the "make":
 ```bash
-$ git clone https://github.com/ytebbit/Folat
+$ git clone https://github.com/zzaqs/Folat
 $ cd Folat
 $ make
 ```
