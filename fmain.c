@@ -27,7 +27,7 @@ void fmi_extIst(bool noWarn, char *trg, char *dat, size_t idx, char *lin){
         datN = (bool)datN;
     }
 
-    if (datN == 0) putchar('\n');
+    if (datN == 1) putchar('\n');
 
     exit(trgN);
 }
