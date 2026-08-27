@@ -1,95 +1,44 @@
-﻿# Folat v0.2.0
-Folat is an imperative esolang and a Finite State Machine (FSM), partially inspired by Assembly.
-This esolang uses fixed-width parsing, where the instruction and the two arguments must be exactly 3 characters long with one character between them. Folat was created on December 7, 2025, by the user @ytebbit.
+# Folat 0.3.0-alpha
+Folat is a Finite State Machine (FSM) esolang, inspired by Assembly and tools that display aligned blocks of data and text, like `objdump`, and use fixed-width parsing to process the text. Folat was created on December 7, 2025, by the user @zzaqs (GitHub).
 
-# Contents
-- "README.md"    : general repository documentation.
-- "LICENSE"      : MIT license.
-- "Makefile"     : used to generate the "fol" binary and other functions; run `make help` for more information.
-- "bin"          : binaries.
-- "src"          : source codes.
-- "src/flib.c"   : library of functions for the instructions.
-- "src/flib.h"   : library header.
-- "src/main.c"   : Folat interpreter and CLI.
-- "src/examples" : a folder of code examples in Folat. The ".fol" extension is optional.
-- "bin/fol"      : optimized binary for the CLI, use `make build` to generate it.
-
-# Memory
-MEM (Memory) is the main memory and is a 50-byte array. PNR (PoiNt Record) is a long that stores the index of the last line that starts with "---". FLG (FLaG) is a boolean that acts as a flag, and the instructions `cmp`, `gpt`, and `gpf` use FLG.
+# Memory components
+- `MEM`/`mem` being an array of 256 bytes.
+- `FLG`/`flg` being a simple variable that changes to true or false.
 
 # Syntax
-Folat uses a fixed-width parsing model following the `ist trg dat` format. The ist field consists of a 3-character instruction, while the trg field (target) must be a 3-digit number from 000 to 049 (padded with leading zeros). The dat field contains the data. Since empty fields are not permitted, any unused fields must be filled with placeholder text or spaces to avoid the `error: line too short` error or the `error: line too long` error. For documentation, start a line with ; for full-line comments. Inline comments are allowed without a semicolon, provided the total line length is either under 11 or over 150 characters; this prevents the C implementation's fgets function from misinterpreting empty fields.
+As said before, Folat uses fixed-width parsing, the instructions and the two arguments must have exactly 3 characters and a space between them. Each line of the program must have 11 characters, or else the error `foli [X]: Line does not meet the minimum character limit (11).` Will happen, because the instructions and the two arguments are obligatory. Even so, some instructions, like the segments or `jmp`, cannot use all the arguments, so you can put anything in there that the instruction will ignore. Always operate with numbers to 0-255 and in 3 chars.
 
 # Instructions
 ## Arithmetic
-- `add trg dat`: adds dat to the trg index byte in memory.
-
-- `sub trg dat`: subtracts dat from the trg index byte in memory.
-
-## Points
-**What are 'points'?**
-In Folat, points are lines that begin with "---". When the interpreter processes this line, it notes the line number in the PNR, and you can make the interpreter return to this line with the `gpt` and `gpf` instructions.
-
-- `gpt`: returns to the line that PNR points to if FLG = true.
-
-- `gpf`: return to the line that PNR points to if FLG = false.
+- `add trg dat`: `mem[trg] += dat`.
+- `sub trg dat`: `mem[trg] -= dat`.
+- `div trg dat`: `mem[trg] = mem[trg] / dat`.
+- `mul trg dat`: `mem[trg] = mem[trg] * dat`.
+- `mod trg dat`: `mem[trg] = mem[trg] % dat`.
 
 ## Utilities
-- `cmp trg dat`: if MEM[trg] == dat, FLG = true; otherwise, FLG = false. The data field only accepts characters such as ASCII codes.
+- `set trg dat`: `mem[trg] = dat` (decimal value!).
+- `out trg dat`: just print `trg` and `dat`, but with formatting (`-` are ignored, `\` are replaced by a break line in terminal).
+- `ext trg dat`: exit the program, `trg` is the exit code, and `dat` is a bool (`000`/`fal` or `001`/`tru`) indicating if must have a break line at the end.
+- `msl trg dat`: print a memory slice, `trg` or `dat` are the start index, and the other is the end index.
 
-- `set trg dat`: writes dat to MEM starting from the trg index, and converts "\" to 0x0A and "-" to 0x07 (pseudo-null), which becomes 0x00 in MEM.
+## Segments
+**Segments just enable execution permission if the seek symbol matches with the segment symbol**
+- `--- trg`: declare a segment, `trg` is his symbol.
+- `cmp trg dat`: if `mem[trg] == dat`, `flg` is true, otherwise, it's false.
+- `jwc trg dat`: native from interpreter, start seeking the segment of symbol `trg` if `dat` matches with the `flg` state.
+- `jmp trg`: native from interpreter too, start seeking the segment of symbol `trg`.
 
-- `out trg`: simply prints MEM[trg].
-
-- `ext trg`: if trg is 001, the program displays the MEM and terminates; otherwise, the program simply terminates.
-
-# How to use
-First, clone the repository and use the "make":
+# Starting
+Here are all the steps:
 ```bash
 $ git clone https://github.com/zzaqs/Folat
 $ cd Folat
-$ make
+$ make # build
+$ make i # optional, add binary to '/usr/local/bin/'
+$ foli test/abc.f # testing
 ```
+All other explained examples in Folat are visible in the "test" folder.
 
-Optionally, add the CLI:
-```
-$ make addcli
-```
-
-To add the binary to the PATH, you can use `make addcli`. Then, you can run the example:
-```bash
-$ fol ~/Folat/src/examples/ex2.fol
-Hello World!
-```
-
-# Examples
-## Printing a byte
-```
-; line comment
-set 000 A-- inline comment
-out 000    ;
-```
-
-## "Hello World!"
-```folat
-set 000 Hel  MEM[0], MEM[1], MEM[2] = 'H', 'e', 'l'
-set 003 lo ;
-set 006 Wor
-set 009 ld!
-set 012 \--  'set' replace '\' to '\n', and remove '-'
-ext 001    ;
-```
-
-## Simulating condition
-```
-set 000 0tf
----        ; PNR = 2
-cmp 000 050  FLG = (MEM[0] == 50)
-add 000 001  MEM[0] += 1
-out 002    ; print(MEM[2])
-gpf        ;
-out 001    ; print(MEM[1])
-ext 000    ; return 0
-```
 # External Resources
 - [Folat esolang page](https://esolangs.org/wiki/Folat)
