@@ -32,7 +32,7 @@ As said before, Folat uses fixed-width parsing, the instructions and the two arg
 # Starting
 Here are all the steps:
 ```bash
-$ git clone https://github.com/zzaqs/Folat
+$ git clone https://github.com/zzaqs/folat
 $ cd Folat
 $ make # build
 $ make i # optional, add binary to '/usr/local/bin/'
