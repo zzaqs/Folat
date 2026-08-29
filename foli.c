@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
         } else if (strcmp(argv[i], "-v") == 0){
             puts("Folat Interpreter 0.3.0-alpha");
             puts("Copyright (C) 2025, @zzaqs");
-            puts("This software is under MOT license");
+            puts("This software is under MIT license");
             return 0;
         } else if (strcmp(argv[i], "-h") == 0){
             puts("Usage: foli <file> [options]");
